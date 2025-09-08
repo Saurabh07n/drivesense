@@ -152,7 +152,7 @@ export function HeroSection() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button asChild size="lg" className="text-2xl px-16 py-8 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-2xl hover:shadow-3xl transition-all duration-300 border-0">
+              <Button asChild size="lg" className="text-xl md:text-2xl px-8 py-5 md:px-16 md:py-8 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-2xl hover:shadow-3xl transition-all duration-300 border-0">
                 <Link href="/calculator/loan-vs-sip" className="flex items-center space-x-3">
                   <span>🚀</span>
                   <span>Get my Smart Split</span>

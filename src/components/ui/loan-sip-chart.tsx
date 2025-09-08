@@ -41,8 +41,8 @@ export function LoanSIPChart({
       transition={{ duration: 0.5, delay }}
     >
       <Card className={cn("w-full border-0 shadow-sm", className)}>
-        <CardContent className="p-6">
-          <ResponsiveContainer width="100%" height={height}>
+        <CardContent className="p-3 md:p-6">
+          <ResponsiveContainer width="100%" height={typeof window === 'undefined' ? height : Math.max(240, Math.min(height, window.innerWidth * 0.6))}>
             <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
               <CartesianGrid strokeDasharray="1 1" stroke="#f1f5f9" />
               <XAxis 

@@ -114,7 +114,7 @@ export default function LoanVsSIPCalculator() {
           </div>
           
           {/* Strategy Selector */}
-          <div className="flex space-x-3">
+          <div className="flex flex-wrap gap-2">
             {(['aggressive', 'balanced', 'custom'] as StrategyType[]).map((strategy) => (
               <Button
                 key={strategy}
@@ -131,9 +131,9 @@ export default function LoanVsSIPCalculator() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Input Panel */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 md:space-y-6">
             <CalculatorCard
               title="Car Details"
               helpText="Enter your car purchase details and financing parameters"
@@ -227,7 +227,7 @@ export default function LoanVsSIPCalculator() {
           </div>
 
           {/* Results Panel */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Primary EMI Display */}
             <div className="text-center">
               <KPICard
@@ -240,7 +240,7 @@ export default function LoanVsSIPCalculator() {
             </div>
 
             {/* Key Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <KPICard
                 label="Total Interest"
                 value={formatINR(selectedResult.totalInterest)}

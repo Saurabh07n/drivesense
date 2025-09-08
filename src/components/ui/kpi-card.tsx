@@ -68,7 +68,7 @@ export function KPICard({
           <motion.p 
             className={cn(
               "font-bold",
-              isPrimary ? "text-4xl text-blue-900" : "text-3xl text-gray-900"
+              isPrimary ? "text-3xl md:text-4xl text-blue-900" : "text-2xl md:text-3xl text-gray-900"
             )}
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
