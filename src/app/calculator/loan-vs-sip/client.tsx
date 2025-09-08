@@ -11,7 +11,7 @@ import { LoanSIPChart } from '@/components/ui/loan-sip-chart';
 import { GuidanceCard } from '@/components/ui/guidance-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { calculateStrategies, formatINR } from '@/lib/finance';
+import { calculateCarFinanceStrategy, formatINR } from '@/lib/finance';
 import { CalculatorInputs, StrategyType, ChartDataPoint } from '@/lib/types';
 import { RotateCcw } from 'lucide-react';
 
@@ -45,30 +45,31 @@ export default function LoanVsSIPCalculator() {
     }
   };
 
-  // Update inputs with calculated tenure when strategy changes
-  const strategyInputs = useMemo(() => ({
-    ...inputs,
-    tenureMonths: calculateOptimalTenure(selectedStrategy)
-  }), [inputs, selectedStrategy]);
-  
-  const results = useMemo(() => 
-    calculateStrategies(strategyInputs), [strategyInputs]
-  );
-
-  const selectedResult = results[selectedStrategy === 'aggressive-emi' ? 'aggressive' : 
-                                selectedStrategy === 'aggressive-sip' ? 'balanced' : 'balanced'];
+  // Calculate results using the new function
+  const results = useMemo(() => {
+    const tenure = calculateOptimalTenure(selectedStrategy);
+    return calculateCarFinanceStrategy(
+      inputs.carPrice,
+      inputs.downPayment,
+      inputs.loanRate,
+      tenure,
+      inputs.monthlyBudget,
+      inputs.sipRate,
+      inputs.horizonMonths
+    );
+  }, [inputs, selectedStrategy]);
   
   const chartData: ChartDataPoint[] = useMemo(() => {
-    if (!selectedResult.timeline) return [];
+    if (!results.timeline) return [];
     
-    return selectedResult.timeline.map((point) => ({
+    return results.timeline.map((point) => ({
       month: point.month,
       loanBalance: point.loanBalance,
       sipValue: point.sipValue,
-      emi: selectedResult.emi,
-      sipContribution: Math.max(0, inputs.monthlyBudget - selectedResult.emi)
+      emi: results.emi,
+      sipContribution: results.monthlySIP
     }));
-  }, [selectedResult, inputs.monthlyBudget]);
+  }, [results]);
 
   const updateInput = (key: keyof CalculatorInputs, value: number | StrategyType) => {
     setInputs(prev => ({ ...prev, [key]: value }));
@@ -90,8 +91,7 @@ export default function LoanVsSIPCalculator() {
 
   // Generate guidance based on selected strategy
   const generateGuidance = () => {
-    const currentResult = selectedResult;
-    const netPosition = currentResult.netPosition;
+    const netPosition = results.netPosition;
     const tenure = calculateOptimalTenure(selectedStrategy);
     
     switch (selectedStrategy) {
@@ -279,49 +279,71 @@ export default function LoanVsSIPCalculator() {
             <div className="text-center">
               <KPICard
                 label="Your Monthly EMI"
-                value={formatINR(selectedResult.emi)}
-                description="Monthly payment"
+                value={formatINR(results.emi)}
+                description="Loan payment"
                 isPrimary={true}
                 delay={0.1}
               />
             </div>
 
-            {/* Key Metrics Grid */}
+            {/* Loan Details Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <KPICard
                 label="Monthly EMI"
-                value={formatINR(selectedResult.emi)}
+                value={formatINR(results.emi)}
                 description="Loan payment"
                 delay={0.2}
               />
               <KPICard
                 label="Total Interest"
-                value={formatINR(selectedResult.totalInterest)}
-                description="Interest paid"
+                value={formatINR(results.totalInterest)}
+                description="Interest paid on loan"
                 delay={0.3}
               />
               <KPICard
-                label="SIP Final Value"
-                value={formatINR(selectedResult.sipFinalValue)}
-                description="Investment corpus"
+                label="Loan Tenure"
+                value={`${calculateOptimalTenure(selectedStrategy)} months`}
+                description="Recommended period"
                 delay={0.4}
               />
             </div>
 
-            {/* Strategy-specific insights */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* SIP Details Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <KPICard
-                label="Tenure"
-                value={`${calculateOptimalTenure(selectedStrategy)} months`}
-                description="Recommended loan period"
+                label="Monthly SIP"
+                value={formatINR(results.monthlySIP)}
+                description="Investment amount"
                 delay={0.5}
               />
               <KPICard
-                label="Net Position"
-                value={formatINR(selectedResult.netPosition)}
-                description="SIP value - Total interest"
-                trend={selectedResult.netPosition >= 0 ? 'up' : 'down'}
+                label="SIP Principal"
+                value={formatINR(results.sipPrincipal)}
+                description="Total invested"
                 delay={0.6}
+              />
+              <KPICard
+                label="SIP Returns"
+                value={formatINR(results.sipReturns)}
+                description="Investment gains"
+                delay={0.7}
+              />
+            </div>
+
+            {/* Final Results */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <KPICard
+                label="SIP Final Value"
+                value={formatINR(results.sipFinalValue)}
+                description="Total investment corpus"
+                delay={0.8}
+              />
+              <KPICard
+                label="Net Position"
+                value={formatINR(results.netPosition)}
+                description="SIP value - Total interest"
+                trend={results.netPosition >= 0 ? 'up' : 'down'}
+                delay={0.9}
               />
             </div>
 

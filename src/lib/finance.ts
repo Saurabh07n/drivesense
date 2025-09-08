@@ -192,6 +192,78 @@ export function calculateStrategies(inputs: CalculatorInputs): ComparisonResult 
   };
 }
 
+/** NEW: Calculate strategy with exact tenure for redesigned Car Finance Planner */
+export function calculateCarFinanceStrategy(
+  carPrice: number,
+  downPayment: number,
+  loanRate: number,
+  tenureMonths: number,
+  monthlyBudget: number,
+  sipRate: number,
+  horizonMonths: number
+): {
+  emi: number;
+  totalInterest: number;
+  monthlySIP: number;
+  sipPrincipal: number;
+  sipReturns: number;
+  sipFinalValue: number;
+  netPosition: number;
+  timeline: Array<{ month: number; loanBalance: number; sipValue: number }>;
+} {
+  const principal = Math.max(0, carPrice - downPayment);
+  
+  const loanParams: LoanParams = {
+    principal,
+    annualRate: loanRate,
+    tenureMonths
+  };
+
+  const emi = calculateEMI(loanParams);
+  const totalInterest = totalInterestPaid(loanParams);
+  const monthlySIP = Math.max(0, monthlyBudget - emi);
+  
+  // Calculate SIP details
+  const sipFinalValue = futureValueSIP(monthlySIP, sipRate, horizonMonths);
+  const sipPrincipal = monthlySIP * horizonMonths;
+  const sipReturns = sipFinalValue - sipPrincipal;
+  
+  // Net position: SIP final value - total interest paid
+  const netPosition = sipFinalValue - totalInterest;
+
+  // Create timeline
+  const schedule = amortizationSchedule(loanParams);
+  const timeline: Array<{ month: number; loanBalance: number; sipValue: number }> = [];
+  
+  let sipValue = 0;
+  const monthlySIPRate = effectiveMonthlyRate(sipRate);
+  
+  for (let m = 1; m <= horizonMonths; m++) {
+    // SIP growth
+    sipValue += monthlySIP;
+    sipValue *= (1 + monthlySIPRate);
+    
+    // Loan balance
+    let loanBalance = 0;
+    if (m <= tenureMonths && schedule[m - 1]) {
+      loanBalance = schedule[m - 1].balance;
+    }
+    
+    timeline.push({ month: m, loanBalance, sipValue });
+  }
+
+  return {
+    emi,
+    totalInterest,
+    monthlySIP,
+    sipPrincipal,
+    sipReturns,
+    sipFinalValue,
+    netPosition,
+    timeline
+  };
+}
+
 /** Utility: INR formatting */
 export function formatINR(n: number): string {
   return new Intl.NumberFormat('en-IN', { 
