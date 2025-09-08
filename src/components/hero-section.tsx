@@ -28,12 +28,12 @@ export function HeroSection() {
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
       {/* Subtle background elements */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-600 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-40 h-40 bg-indigo-600 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-green-600 rounded-full blur-2xl"></div>
+        <div className="absolute top-20 left-10 w-24 h-24 md:w-28 md:h-28 bg-blue-600 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-28 h-28 md:w-36 md:h-36 bg-indigo-600 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/4 w-16 h-16 md:w-20 md:h-20 bg-green-600 rounded-full blur-2xl"></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 py-8 md:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent"
+            className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent"
           >
             TorqWiser
           </motion.h1>
@@ -89,10 +89,10 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="space-y-4"
           >
-            <p className="text-3xl md:text-4xl text-gray-900 font-semibold">
+            <p className="text-2xl md:text-3xl text-gray-900 font-semibold">
               Buy the car. Grow your wealth.
             </p>
-            <p className="text-base md:text-lg text-gray-700">
+            <p className="text-sm md:text-base text-gray-700">
               Lower EMI + invested difference → corpus beats extra interest.
             </p>
             
@@ -105,7 +105,7 @@ export function HeroSection() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5 }}
-                  className="text-xl md:text-2xl font-semibold text-blue-600"
+                  className="text-lg md:text-xl font-semibold text-blue-600"
                 >
                   {phrases[currentPhrase]}
                 </motion.div>
@@ -118,25 +118,25 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 max-w-2xl mx-auto"
+            className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-xl border border-white/20 max-w-2xl mx-auto"
           >
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <div className="md:col-span-1 text-left">
                 <div className="text-xs uppercase tracking-wide text-gray-500">EMI</div>
-                <div className="text-2xl md:text-3xl font-bold text-gray-900">₹18,500</div>
+                <div className="text-xl md:text-2xl font-bold text-gray-900">₹18,500</div>
               </div>
               <div className="md:col-span-1 text-left">
                 <div className="text-xs uppercase tracking-wide text-gray-500">SIP / month</div>
-                <div className="text-2xl md:text-3xl font-bold text-gray-900">₹6,500</div>
+                <div className="text-xl md:text-2xl font-bold text-gray-900">₹6,500</div>
               </div>
               <div className="md:col-span-1 text-left">
                 <div className="text-xs uppercase tracking-wide text-gray-500">Projected corpus</div>
-                <div className="text-2xl md:text-3xl font-bold text-green-600">₹2.8L</div>
+                <div className="text-xl md:text-2xl font-bold text-green-600">₹2.8L</div>
               </div>
               <div className="md:col-span-1 text-left">
                 <div className="text-xs uppercase tracking-wide text-gray-500">Advantage</div>
-                <div className="text-sm md:text-base font-semibold text-green-700">Saves ₹45K vs max EMI</div>
-                <div className="text-xs text-gray-500">in 5 years</div>
+                <div className="text-xs md:text-sm font-semibold text-green-700">Saves ₹45K vs max EMI</div>
+                <div className="text-[10px] md:text-xs text-gray-500">in 5 years</div>
               </div>
             </div>
           </motion.div>
@@ -152,7 +152,7 @@ export function HeroSection() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button asChild size="lg" className="text-xl md:text-2xl px-8 py-5 md:px-16 md:py-8 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-2xl hover:shadow-3xl transition-all duration-300 border-0">
+              <Button asChild size="lg" className="text-lg md:text-xl px-6 py-4 md:px-12 md:py-6 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
                 <Link href="/calculator/loan-vs-sip" className="flex items-center space-x-3">
                   <span>🚀</span>
                   <span>Get my Smart Split</span>
