@@ -59,18 +59,15 @@ export default function EMICalculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+        {/* Minimal Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">EMI Calculator</h1>
-              <p className="text-gray-600 mt-2">
-                Calculate your car loan EMI with detailed amortization schedule
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900">EMI Calculator</h1>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" size="sm" onClick={resetToDefaults}>
@@ -79,7 +76,7 @@ export default function EMICalculator() {
               </Button>
               <Button variant="outline" size="sm" onClick={exportAmortizationSchedule}>
                 <Download className="h-4 w-4 mr-2" />
-                Export CSV
+                Export
               </Button>
             </div>
           </div>
@@ -142,28 +139,37 @@ export default function EMICalculator() {
           </div>
 
           {/* Results Panel */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Primary EMI Display */}
+            <div className="text-center">
               <KPICard
-                label="EMI"
+                label="Your Monthly EMI"
                 value={formatINR(emi)}
                 description="Monthly payment"
+                isPrimary={true}
+                delay={0.1}
               />
+            </div>
+
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <KPICard
                 label="Total Amount"
                 value={formatINR(totalPaid)}
                 description="Principal + Interest"
+                delay={0.2}
               />
               <KPICard
                 label="Total Interest"
                 value={formatINR(totalInterest)}
                 description="Interest component"
+                delay={0.3}
               />
               <KPICard
                 label="Interest Rate"
                 value={formatPercentage(loanParams.annualRate)}
                 description="Annual rate"
+                delay={0.4}
               />
             </div>
 

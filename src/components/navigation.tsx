@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Car, Calculator, BookOpen, Info, Menu, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -32,7 +31,7 @@ export function Navigation() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Car className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">DriveSense</span>
+            <span className="text-xl font-bold text-gray-900">TorqWiser</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -73,9 +72,9 @@ export function Navigation() {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button asChild>
+            <Button asChild size="sm">
               <Link href="/calculator/loan-vs-sip">
-                Open Guider
+                See Smart Split
               </Link>
             </Button>
           </div>
@@ -125,7 +124,7 @@ export function Navigation() {
               <div className="pt-4 border-t border-gray-200">
                 <Button asChild className="w-full">
                   <Link href="/calculator/loan-vs-sip" onClick={() => setIsMobileMenuOpen(false)}>
-                    Open Guider
+                    See Smart Split
                   </Link>
                 </Button>
               </div>

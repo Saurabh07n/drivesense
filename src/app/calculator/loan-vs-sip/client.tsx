@@ -7,13 +7,13 @@ import { CalculatorCard } from '@/components/ui/calculator-card';
 import { NumberField } from '@/components/ui/number-field';
 import { SliderField } from '@/components/ui/slider-field';
 import { KPICard } from '@/components/ui/kpi-card';
-import { StrategyComparison } from '@/components/ui/strategy-comparison';
 import { LoanSIPChart } from '@/components/ui/loan-sip-chart';
+import { GuidanceCard } from '@/components/ui/guidance-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { calculateStrategies, formatINR } from '@/lib/finance';
 import { CalculatorInputs, StrategyType, ChartDataPoint } from '@/lib/types';
-import { Download, Share2, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 export default function LoanVsSIPCalculator() {
   const [inputs, setInputs] = useState<CalculatorInputs>({
@@ -66,72 +66,55 @@ export default function LoanVsSIPCalculator() {
     });
   };
 
-  const exportResults = () => {
-    const data = {
-      inputs,
-      results,
-      timestamp: new Date().toISOString(),
-      version: '1.0'
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'drivesense-calculator-results.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
-  const shareResults = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'DriveSense Calculator Results',
-          text: `Check out my car financing strategy comparison on DriveSense!`,
-          url: window.location.href
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
+  // Generate guidance based on results
+  const generateGuidance = () => {
+    const bestStrategy = results.balanced.netPosition > results.aggressive.netPosition ? 'balanced' : 'aggressive';
+    const bestResult = results[bestStrategy];
+    const savings = Math.abs(bestResult.netPosition);
+    
+    if (bestResult.netPosition > 0) {
+      return {
+        recommendation: 'positive' as const,
+        title: 'Balanced Approach',
+        value: `Saves ₹${Math.round(savings / 1000)}K more`,
+        description: 'in 5 years compared to aggressive strategy',
+        details: 'By choosing a longer loan tenure and investing the difference in SIP, you can earn more returns than the extra interest you pay. This strategy maximizes your wealth creation potential.'
+      };
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
+      return {
+        recommendation: 'negative' as const,
+        title: 'Aggressive Approach',
+        value: `Saves ₹${Math.round(savings / 1000)}K more`,
+        description: 'in 5 years compared to balanced strategy',
+        details: 'With current market conditions and your budget, paying off the loan faster reduces total interest more than what you could earn through SIP investments.'
+      };
     }
   };
 
+  const guidance = generateGuidance();
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+        {/* Minimal Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Loan vs SIP Calculator</h1>
-              <p className="text-gray-600 mt-2">
-                Compare aggressive vs balanced strategies to maximize your wealth creation
-              </p>
+              <h1 className="text-2xl font-bold text-gray-900">Car Finance Planner</h1>
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" size="sm" onClick={resetToDefaults}>
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
-              <Button variant="outline" size="sm" onClick={exportResults}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" size="sm" onClick={shareResults}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
             </div>
           </div>
           
           {/* Strategy Selector */}
-          <div className="flex space-x-4">
+          <div className="flex space-x-3">
             {(['aggressive', 'balanced', 'custom'] as StrategyType[]).map((strategy) => (
               <Button
                 key={strategy}
@@ -244,42 +227,40 @@ export default function LoanVsSIPCalculator() {
           </div>
 
           {/* Results Panel */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Key Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Primary EMI Display */}
+            <div className="text-center">
               <KPICard
-                label="EMI"
+                label="Your Monthly EMI"
                 value={formatINR(selectedResult.emi)}
                 description="Monthly payment"
+                isPrimary={true}
+                delay={0.1}
               />
+            </div>
+
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <KPICard
                 label="Total Interest"
                 value={formatINR(selectedResult.totalInterest)}
                 description="Interest paid"
                 trend={selectedResult.totalInterest < results.aggressive.totalInterest ? 'down' : 'up'}
+                delay={0.2}
               />
               <KPICard
                 label="SIP Final Value"
                 value={formatINR(selectedResult.sipFinalValue)}
                 description="Investment corpus"
                 trend={selectedResult.sipFinalValue > results.aggressive.sipFinalValue ? 'up' : 'down'}
+                delay={0.3}
               />
               <KPICard
-                label="Extra Return"
-                value={formatINR(selectedResult.sipExtraReturn)}
-                description="SIP gains"
-                trend={selectedResult.sipExtraReturn > results.aggressive.sipExtraReturn ? 'up' : 'down'}
-              />
-              <KPICard
-                label="Net Position"
+                label="Net Advantage"
                 value={formatINR(selectedResult.netPosition)}
-                description="Overall advantage"
+                description="Overall benefit"
                 trend={selectedResult.netPosition >= 0 ? 'up' : 'down'}
-              />
-              <KPICard
-                label="Available for SIP"
-                value={formatINR(Math.max(0, inputs.monthlyBudget - selectedResult.emi))}
-                description="Monthly surplus"
+                delay={0.4}
               />
             </div>
 
@@ -287,12 +268,19 @@ export default function LoanVsSIPCalculator() {
             {chartData.length > 0 && (
               <LoanSIPChart
                 data={chartData}
-                title={`${selectedStrategy.charAt(0).toUpperCase() + selectedStrategy.slice(1)} Strategy Timeline`}
+                delay={0.5}
               />
             )}
 
-            {/* Strategy Comparison */}
-            <StrategyComparison results={results} />
+            {/* Guidance Card */}
+            <GuidanceCard
+              recommendation={guidance.recommendation}
+              title={guidance.title}
+              value={guidance.value}
+              description={guidance.description}
+              details={guidance.details}
+              delay={0.6}
+            />
           </div>
         </div>
       </main>

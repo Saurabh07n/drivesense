@@ -1,8 +1,8 @@
 // src/components/ui/kpi-card.tsx
 import { Card } from './card';
-import { Badge } from './badge';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface KPICardProps {
   label: string;
@@ -11,6 +11,8 @@ interface KPICardProps {
   trend?: 'up' | 'down' | 'neutral';
   trendValue?: string;
   className?: string;
+  isPrimary?: boolean;
+  delay?: number;
 }
 
 export function KPICard({ 
@@ -19,7 +21,9 @@ export function KPICard({
   description, 
   trend, 
   trendValue, 
-  className 
+  className,
+  isPrimary = false,
+  delay = 0
 }: KPICardProps) {
   const getTrendIcon = () => {
     switch (trend) {
@@ -44,25 +48,48 @@ export function KPICard({
   };
 
   return (
-    <Card className={cn("p-4", className)}>
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-gray-600">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay }}
+    >
+      <Card className={cn(
+        "p-6 border-0 shadow-sm hover:shadow-md transition-all duration-300",
+        isPrimary ? "bg-blue-50 border-blue-200" : "bg-white",
+        className
+      )}>
+        <div className="text-center space-y-3">
+          <p className={cn(
+            "text-sm font-medium",
+            isPrimary ? "text-blue-700" : "text-gray-600"
+          )}>
+            {label}
+          </p>
+          <motion.p 
+            className={cn(
+              "font-bold",
+              isPrimary ? "text-4xl text-blue-900" : "text-3xl text-gray-900"
+            )}
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.3, delay: delay + 0.2 }}
+          >
+            {value}
+          </motion.p>
           {description && (
             <p className="text-xs text-gray-500">{description}</p>
           )}
+          {trend && trendValue && (
+            <div className="flex items-center justify-center space-x-1">
+              {getTrendIcon()}
+              <span className={cn("text-sm font-medium", getTrendColor())}>
+                {trendValue}
+              </span>
+            </div>
+          )}
         </div>
-        {trend && trendValue && (
-          <div className="flex items-center space-x-1">
-            {getTrendIcon()}
-            <span className={cn("text-sm font-medium", getTrendColor())}>
-              {trendValue}
-            </span>
-          </div>
-        )}
-      </div>
-    </Card>
+      </Card>
+    </motion.div>
   );
 }
 

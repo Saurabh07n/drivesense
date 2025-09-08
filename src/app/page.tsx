@@ -1,10 +1,6 @@
 // src/app/page.tsx
 import { Navigation } from '@/components/navigation';
 import { HeroSection } from '@/components/hero-section';
-import { ValueProps } from '@/components/value-props';
-import { MiniCalculator } from '@/components/mini-calculator';
-import { Features } from '@/components/features';
-import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'DriveSense - Car Finance Guider | EMI vs SIP Calculator',
@@ -19,15 +15,14 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Navigation />
       <main>
         <HeroSection />
-        <ValueProps />
-        <MiniCalculator />
-        <Features />
       </main>
-      <Footer />
+      <footer className="py-8 text-center text-gray-500 text-sm">
+        <p>© 2024 DriveSense. Plan smarter, drive happier.</p>
+      </footer>
     </div>
   );
 }
