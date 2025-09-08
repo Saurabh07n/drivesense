@@ -10,7 +10,6 @@ import { KPICard } from '@/components/ui/kpi-card';
 import { LoanSIPChart } from '@/components/ui/loan-sip-chart';
 import { GuidanceCard } from '@/components/ui/guidance-card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { calculateCarFinanceStrategy, formatINR } from '@/lib/finance';
 import { CalculatorInputs, StrategyType, ChartDataPoint } from '@/lib/types';
 import { RotateCcw } from 'lucide-react';
@@ -159,14 +158,14 @@ export default function LoanVsSIPCalculator() {
           {/* Strategy Selector */}
           <div className="flex flex-wrap gap-2">
             {[
-              { key: 'balanced', label: 'Balanced Approach', description: '5-year tenure' },
-              { key: 'aggressive-emi', label: 'Aggressive EMI', description: '3-4 year tenure' },
-              { key: 'aggressive-sip', label: 'Aggressive SIP', description: '6-7 year tenure' }
+              { key: 'balanced' as const, label: 'Balanced Approach', description: '5-year tenure' },
+              { key: 'aggressive-emi' as const, label: 'Aggressive EMI', description: '3-4 year tenure' },
+              { key: 'aggressive-sip' as const, label: 'Aggressive SIP', description: '6-7 year tenure' }
             ].map((strategy) => (
               <Button
                 key={strategy.key}
                 variant={selectedStrategy === strategy.key ? 'default' : 'outline'}
-                onClick={() => setSelectedStrategy(strategy.key as any)}
+                onClick={() => setSelectedStrategy(strategy.key)}
                 className="capitalize flex flex-col items-center p-4 h-auto"
               >
                 <span className="font-medium">{strategy.label}</span>
