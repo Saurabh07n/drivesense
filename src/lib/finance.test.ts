@@ -62,7 +62,7 @@ describe('Financial Calculations', () => {
       const fv = futureValueSIP(monthlyAmount, annualReturnRate, months);
       // Should be significantly higher than simple multiplication
       expect(fv).toBeGreaterThan(monthlyAmount * months);
-      expect(fv).toBeCloseTo(412000, -3); // Approximately ₹4.12L
+      expect(fv).toBeCloseTo(405518, -3); // Corrected value using proper monthly rate calculation
     });
 
     it('should handle zero return rate', () => {

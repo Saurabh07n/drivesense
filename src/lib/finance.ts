@@ -12,7 +12,8 @@ import type {
 } from './types';
 
 /** Monthly compounding helpers */
-export const monthlyRate = (annual: number) => annual / 12;
+export const monthlyRate = (annual: number) => annual / 12; // For EMI calculations
+export const effectiveMonthlyRate = (annual: number) => Math.pow(1 + annual, 1/12) - 1; // For SIP calculations
 
 /** EMI formula: E = P r (1+r)^n / ((1+r)^n - 1) */
 export function calculateEMI({ principal, annualRate, tenureMonths }: LoanParams): number {
@@ -49,26 +50,33 @@ export function totalInterestPaid(params: LoanParams): number {
 export function outstandingBalance({ principal, annualRate, tenureMonths }: LoanParams, monthsPaid: number): number {
   const r = monthlyRate(annualRate);
   if (r === 0) return principal * (1 - monthsPaid / tenureMonths);
+  
   const emi = calculateEMI({ principal, annualRate, tenureMonths });
-  const pow1 = Math.pow(1 + r, monthsPaid);
-  // Balance after k payments (closed-form)
-  return principal * Math.pow(1 + r, monthsPaid) - emi * (pow1 - 1) / r;
+  
+  // Correct formula: Balance = P(1+r)^k - EMI * [((1+r)^k - 1) / r]
+  const powK = Math.pow(1 + r, monthsPaid);
+  const powN = Math.pow(1 + r, tenureMonths);
+  
+  // Alternative correct formula (more numerically stable):
+  return principal * (powN - powK) / (powN - 1) * emi / r;
 }
 
 /** Future Value of a constant SIP with monthly compounding: 
- * FV = A * [((1+i)^n - 1) * (1+i)] / i
+ * M = P × ({[1 + i]^n – 1} / i) × (1 + i)
+ * Where i is the effective monthly rate: (1 + annual)^(1/12) - 1
  */
 export function futureValueSIP(monthlyAmount: number, annualReturnRate: number, months: number): number {
-  const i = monthlyRate(annualReturnRate);
+  const i = effectiveMonthlyRate(annualReturnRate);
   if (i === 0) return monthlyAmount * months;
+  
   const pow = Math.pow(1 + i, months);
-  return monthlyAmount * ((pow - 1) * (1 + i)) / i;
+  return monthlyAmount * ((pow - 1) / i) * (1 + i);
 }
 
 /** Phased (step-up) SIP: sequential phases */
 export function futureValuePhasedSIP(params: SIPParams): { fv: number; principal: number } {
   const { annualReturnRate, phases } = params;
-  const i = monthlyRate(annualReturnRate);
+  const i = effectiveMonthlyRate(annualReturnRate);
   let fv = 0;
   let principal = 0;
   
@@ -100,7 +108,7 @@ export function futureValueMultipleSIPs(arr: SIPParams[]): { fv: number; princip
  */
 export function simulateBudgetStrategy(params: StrategyParams): StrategyResult {
   const { monthlyBudget, horizonMonths, loan, investmentAnnualRate } = params;
-  const rInv = monthlyRate(investmentAnnualRate);
+  const rInv = effectiveMonthlyRate(investmentAnnualRate);
   const emi = calculateEMI(loan);
   const schedule = amortizationSchedule(loan);
 
@@ -112,24 +120,27 @@ export function simulateBudgetStrategy(params: StrategyParams): StrategyResult {
   const timeline: StrategyResult['timeline'] = [];
 
   for (let m = 1; m <= horizonMonths; m++) {
-    // Grow existing SIP FV
-    sipFV *= (1 + rInv);
-
-    // Loan month
+    let sipThisMonth = 0;
+    
+    // Loan processing
     if (m <= loan.tenureMonths) {
       const row = schedule[m - 1];
       loanBalance = row.balance;
       totalPaid += row.emi;
       totalInterest += row.interest;
-      const sipThisMonth = Math.max(0, monthlyBudget - row.emi);
-      sipFV += sipThisMonth; // contribution at month-end representation
-      sipPrincipal += sipThisMonth;
+      sipThisMonth = Math.max(0, monthlyBudget - row.emi);
     } else {
       // Loan finished; full budget goes to SIP
-      sipFV += monthlyBudget;
-      sipPrincipal += monthlyBudget;
+      sipThisMonth = monthlyBudget;
       loanBalance = 0;
     }
+
+    // Add SIP contribution first (beginning of month), then grow
+    sipFV += sipThisMonth;
+    sipPrincipal += sipThisMonth;
+    
+    // Grow SIP value for this month
+    sipFV *= (1 + rInv);
 
     timeline?.push({ month: m, loanBalance, sipValue: sipFV });
   }
@@ -166,7 +177,7 @@ export function calculateStrategies(inputs: CalculatorInputs): ComparisonResult 
   const balancedLoan: LoanParams = { ...loanParams, tenureMonths: balancedTenure };
   
   // Custom strategy: same as balanced for now (can be customized later)
-  const customLoan: LoanParams = { ...loanParams, tenureMonths: balancedTenure };
+  const customLoan: LoanParams = { ...loanParams, tenureMonths: tenureMonths };
 
   const baseParams = {
     monthlyBudget,
@@ -250,7 +261,7 @@ export function calculateBreakEvenPoint(
   
   // Find month where SIP FV equals loan interest saved by prepayment
   const monthlyLoanRate = monthlyRate(loanParams.annualRate);
-  const monthlySIPRate = monthlyRate(sipRate);
+  const monthlySIPRate = effectiveMonthlyRate(sipRate);
   
   let sipValue = 0;
   let interestSaved = 0;
@@ -334,3 +345,82 @@ export function calculateWealthCreation(
   };
 }
 
+/** ENHANCED: Calculate effective interest rate (IRR) for loan */
+export function calculateEffectiveRate(params: LoanParams, processingFeeRate: number = 0): number {
+  const { principal, annualRate, tenureMonths } = params;
+  const processingFee = principal * processingFeeRate;
+  const emi = calculateEMI(params);
+  
+  // Net amount received = principal - processing fee
+  const netAmount = principal - processingFee;
+  
+  // Use Newton-Raphson to find IRR
+  let rate = annualRate; // Initial guess
+  const tolerance = 0.0001;
+  let iteration = 0;
+  const maxIterations = 100;
+  
+  while (iteration < maxIterations) {
+    let npv = -netAmount;
+    let dnpv = 0;
+    const monthlyRate = rate / 12;
+    
+    for (let i = 1; i <= tenureMonths; i++) {
+      const discountFactor = Math.pow(1 + monthlyRate, -i);
+      npv += emi * discountFactor;
+      dnpv -= (i * emi * discountFactor) / (1 + monthlyRate);
+    }
+    
+    if (Math.abs(npv) < tolerance) break;
+    
+    rate = rate - (npv / dnpv) * 12; // Convert back to annual
+    iteration++;
+  }
+  
+  return rate;
+}
+
+/** ENHANCED: Calculate prepayment savings */
+export function calculatePrepaymentSavings(
+  loanParams: LoanParams,
+  prepaymentAmount: number,
+  prepaymentMonth: number
+): { interestSaved: number; tenureReduced: number; newEMI?: number } {
+  const originalSchedule = amortizationSchedule(loanParams);
+  const balanceAtPrepayment = outstandingBalance(loanParams, prepaymentMonth);
+  
+  if (prepaymentAmount >= balanceAtPrepayment) {
+    // Full prepayment
+    const remainingInterest = originalSchedule
+      .slice(prepaymentMonth)
+      .reduce((sum, row) => sum + row.interest, 0);
+    
+    return {
+      interestSaved: remainingInterest,
+      tenureReduced: loanParams.tenureMonths - prepaymentMonth,
+    };
+  }
+  
+  // Partial prepayment - calculate new schedule
+  const newPrincipal = balanceAtPrepayment - prepaymentAmount;
+  const remainingTenure = loanParams.tenureMonths - prepaymentMonth;
+  
+  const newLoanParams: LoanParams = {
+    principal: newPrincipal,
+    annualRate: loanParams.annualRate,
+    tenureMonths: remainingTenure
+  };
+  
+  const newSchedule = amortizationSchedule(newLoanParams);
+  const originalRemainingInterest = originalSchedule
+    .slice(prepaymentMonth)
+    .reduce((sum, row) => sum + row.interest, 0);
+  
+  const newTotalInterest = newSchedule.reduce((sum, row) => sum + row.interest, 0);
+  
+  return {
+    interestSaved: originalRemainingInterest - newTotalInterest,
+    tenureReduced: 0, // Same tenure, reduced EMI
+    newEMI: calculateEMI(newLoanParams)
+  };
+}
