@@ -20,22 +20,43 @@ export default function LoanVsSIPCalculator() {
     carPrice: 1000000,
     downPayment: 200000,
     loanRate: 0.083,
-    tenureMonths: 60,
+    tenureMonths: 60, // This will be calculated based on strategy
     monthlyBudget: 25000,
     sipRate: 0.12,
     horizonMonths: 60,
     strategy: 'balanced'
   });
 
-  const [selectedStrategy, setSelectedStrategy] = useState<StrategyType>('balanced');
+  const [selectedStrategy, setSelectedStrategy] = useState<'balanced' | 'aggressive-emi' | 'aggressive-sip'>('balanced');
 
   const loanPrincipal = Math.max(0, inputs.carPrice - inputs.downPayment);
   
+  // Calculate optimal tenure based on selected strategy
+  const calculateOptimalTenure = (strategy: string) => {
+    const baseTenure = 60; // Default 5 years
+    switch (strategy) {
+      case 'aggressive-emi':
+        return Math.max(24, Math.floor(baseTenure * 0.6)); // 3-4 years for aggressive EMI
+      case 'aggressive-sip':
+        return Math.min(84, Math.floor(baseTenure * 1.4)); // 6-7 years for aggressive SIP
+      case 'balanced':
+      default:
+        return baseTenure; // 5 years for balanced
+    }
+  };
+
+  // Update inputs with calculated tenure when strategy changes
+  const strategyInputs = useMemo(() => ({
+    ...inputs,
+    tenureMonths: calculateOptimalTenure(selectedStrategy)
+  }), [inputs, selectedStrategy]);
+  
   const results = useMemo(() => 
-    calculateStrategies(inputs), [inputs]
+    calculateStrategies(strategyInputs), [strategyInputs]
   );
 
-  const selectedResult = results[selectedStrategy];
+  const selectedResult = results[selectedStrategy === 'aggressive-emi' ? 'aggressive' : 
+                                selectedStrategy === 'aggressive-sip' ? 'balanced' : 'balanced'];
   
   const chartData: ChartDataPoint[] = useMemo(() => {
     if (!selectedResult.timeline) return [];
@@ -67,28 +88,50 @@ export default function LoanVsSIPCalculator() {
   };
 
 
-  // Generate guidance based on results
+  // Generate guidance based on selected strategy
   const generateGuidance = () => {
-    const bestStrategy = results.balanced.netPosition > results.aggressive.netPosition ? 'balanced' : 'aggressive';
-    const bestResult = results[bestStrategy];
-    const savings = Math.abs(bestResult.netPosition);
+    const currentResult = selectedResult;
+    const netPosition = currentResult.netPosition;
+    const tenure = calculateOptimalTenure(selectedStrategy);
     
-    if (bestResult.netPosition > 0) {
-      return {
-        recommendation: 'positive' as const,
-        title: 'Balanced Approach',
-        value: `Saves ₹${Math.round(savings / 1000)}K more`,
-        description: 'in 5 years compared to aggressive strategy',
-        details: 'By choosing a longer loan tenure and investing the difference in SIP, you can earn more returns than the extra interest you pay. This strategy maximizes your wealth creation potential.'
-      };
-    } else {
-      return {
-        recommendation: 'negative' as const,
-        title: 'Aggressive Approach',
-        value: `Saves ₹${Math.round(savings / 1000)}K more`,
-        description: 'in 5 years compared to balanced strategy',
-        details: 'With current market conditions and your budget, paying off the loan faster reduces total interest more than what you could earn through SIP investments.'
-      };
+    switch (selectedStrategy) {
+      case 'balanced':
+        return {
+          recommendation: netPosition >= 0 ? 'positive' as const : 'negative' as const,
+          title: 'Balanced Approach',
+          value: `${tenure} months tenure`,
+          description: netPosition >= 0 ? 'Optimal for wealth creation' : 'Consider adjusting parameters',
+          details: netPosition >= 0 
+            ? `With a ${tenure}-month tenure, you can balance loan payments with SIP investments, potentially earning ₹${Math.round(Math.abs(netPosition) / 1000)}K more over the loan period.`
+            : `The current parameters suggest paying off the loan faster might be more beneficial. Consider increasing your monthly budget or adjusting the loan amount.`
+        };
+      
+      case 'aggressive-emi':
+        return {
+          recommendation: 'negative' as const,
+          title: 'Aggressive EMI Approach',
+          value: `${tenure} months tenure`,
+          description: 'Minimize total interest paid',
+          details: `By choosing a shorter ${tenure}-month tenure, you'll pay off the loan faster and minimize total interest. This approach prioritizes debt freedom over investment returns.`
+        };
+      
+      case 'aggressive-sip':
+        return {
+          recommendation: 'positive' as const,
+          title: 'Aggressive SIP Approach',
+          value: `${tenure} months tenure`,
+          description: 'Maximize investment returns',
+          details: `With a longer ${tenure}-month tenure, you can invest more in SIP while paying lower EMIs. This approach maximizes your wealth creation potential through compound returns.`
+        };
+      
+      default:
+        return {
+          recommendation: 'positive' as const,
+          title: 'Strategy Analysis',
+          value: 'Review your options',
+          description: 'Compare different approaches',
+          details: 'Select a strategy above to see detailed insights and recommendations.'
+        };
     }
   };
 
@@ -115,17 +158,19 @@ export default function LoanVsSIPCalculator() {
           
           {/* Strategy Selector */}
           <div className="flex flex-wrap gap-2">
-            {(['aggressive', 'balanced', 'custom'] as StrategyType[]).map((strategy) => (
+            {[
+              { key: 'balanced', label: 'Balanced Approach', description: '5-year tenure' },
+              { key: 'aggressive-emi', label: 'Aggressive EMI', description: '3-4 year tenure' },
+              { key: 'aggressive-sip', label: 'Aggressive SIP', description: '6-7 year tenure' }
+            ].map((strategy) => (
               <Button
-                key={strategy}
-                variant={selectedStrategy === strategy ? 'default' : 'outline'}
-                onClick={() => setSelectedStrategy(strategy)}
-                className="capitalize"
+                key={strategy.key}
+                variant={selectedStrategy === strategy.key ? 'default' : 'outline'}
+                onClick={() => setSelectedStrategy(strategy.key as any)}
+                className="capitalize flex flex-col items-center p-4 h-auto"
               >
-                {strategy}
-                {strategy === 'balanced' && results.balanced.netPosition > results.aggressive.netPosition && (
-                  <Badge variant="secondary" className="ml-2">Best</Badge>
-                )}
+                <span className="font-medium">{strategy.label}</span>
+                <span className="text-xs opacity-75">{strategy.description}</span>
               </Button>
             ))}
           </div>
@@ -136,9 +181,20 @@ export default function LoanVsSIPCalculator() {
           <div className="lg:col-span-1 space-y-4 md:space-y-6">
             <CalculatorCard
               title="Car Details"
-              helpText="Enter your car purchase details and financing parameters"
+              helpText="Enter your car purchase details and monthly budget"
             >
               <div className="space-y-4">
+                {/* Monthly Budget - Most Important */}
+                <SliderField
+                  label="Monthly EMI Budget"
+                  value={inputs.monthlyBudget}
+                  onChange={(value) => updateInput('monthlyBudget', value)}
+                  min={10000}
+                  max={100000}
+                  step={1000}
+                  format="currency"
+                />
+                
                 <NumberField
                   label="Car Price"
                   value={inputs.carPrice}
@@ -168,7 +224,7 @@ export default function LoanVsSIPCalculator() {
 
             <CalculatorCard
               title="Loan Parameters"
-              helpText="Set your loan interest rate and tenure"
+              helpText="Set your loan interest rate"
             >
               <div className="space-y-4">
                 <SliderField
@@ -180,31 +236,22 @@ export default function LoanVsSIPCalculator() {
                   step={0.001}
                   format="percentage"
                 />
-                <SliderField
-                  label="Tenure (months)"
-                  value={inputs.tenureMonths}
-                  onChange={(value) => updateInput('tenureMonths', value)}
-                  min={12}
-                  max={84}
-                  step={1}
-                />
+                <div className="p-3 bg-green-50 rounded-lg">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Recommended Tenure:</span>
+                    <span className="font-semibold text-green-700">
+                      {calculateOptimalTenure(selectedStrategy)} months
+                    </span>
+                  </div>
+                </div>
               </div>
             </CalculatorCard>
 
             <CalculatorCard
-              title="Budget & Investment"
-              helpText="Set your monthly budget and expected SIP returns"
+              title="Investment Parameters"
+              helpText="Set your expected SIP returns and analysis horizon"
             >
               <div className="space-y-4">
-                <SliderField
-                  label="Monthly Budget"
-                  value={inputs.monthlyBudget}
-                  onChange={(value) => updateInput('monthlyBudget', value)}
-                  min={10000}
-                  max={100000}
-                  step={1000}
-                  format="currency"
-                />
                 <SliderField
                   label="SIP Return (p.a.)"
                   value={inputs.sipRate}
@@ -242,25 +289,39 @@ export default function LoanVsSIPCalculator() {
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               <KPICard
+                label="Monthly EMI"
+                value={formatINR(selectedResult.emi)}
+                description="Loan payment"
+                delay={0.2}
+              />
+              <KPICard
                 label="Total Interest"
                 value={formatINR(selectedResult.totalInterest)}
                 description="Interest paid"
-                trend={selectedResult.totalInterest < results.aggressive.totalInterest ? 'down' : 'up'}
-                delay={0.2}
+                delay={0.3}
               />
               <KPICard
                 label="SIP Final Value"
                 value={formatINR(selectedResult.sipFinalValue)}
                 description="Investment corpus"
-                trend={selectedResult.sipFinalValue > results.aggressive.sipFinalValue ? 'up' : 'down'}
-                delay={0.3}
+                delay={0.4}
+              />
+            </div>
+
+            {/* Strategy-specific insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <KPICard
+                label="Tenure"
+                value={`${calculateOptimalTenure(selectedStrategy)} months`}
+                description="Recommended loan period"
+                delay={0.5}
               />
               <KPICard
-                label="Net Advantage"
+                label="Net Position"
                 value={formatINR(selectedResult.netPosition)}
-                description="Overall benefit"
+                description="SIP value - Total interest"
                 trend={selectedResult.netPosition >= 0 ? 'up' : 'down'}
-                delay={0.4}
+                delay={0.6}
               />
             </div>
 
