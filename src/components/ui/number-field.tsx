@@ -1,4 +1,5 @@
 // src/components/ui/number-field.tsx
+import { useState, useEffect } from 'react';
 import { Input } from './input';
 import { Label } from './label';
 import { formatINR, formatPercentage, formatNumber } from '@/lib/finance';
@@ -33,6 +34,16 @@ export function NumberField({
   className,
   placeholder
 }: NumberFieldProps) {
+  const [inputValue, setInputValue] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Update input value when external value changes (but not when user is typing)
+  useEffect(() => {
+    if (!isFocused) {
+      setInputValue(formatValue(value));
+    }
+  }, [value, isFocused]);
+
   const formatValue = (val: number): string => {
     switch (format) {
       case 'currency':
@@ -44,23 +55,93 @@ export function NumberField({
     }
   };
 
-  const parseValue = (inputValue: string): number => {
+  const parseValue = (inputValue: string): number | null => {
     // Remove currency symbols, commas, and percentage signs
     const cleaned = inputValue
       .replace(/[₹,]/g, '')
       .replace(/%/g, '')
       .trim();
     
+    if (cleaned === '') return null;
+    
     const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? 0 : Math.max(min, Math.min(max, parsed));
+    return isNaN(parsed) ? null : Math.max(min, Math.min(max, parsed));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseValue(e.target.value);
-    onChange(newValue);
+    const newInputValue = e.target.value;
+    
+    // Filter out non-numeric characters except decimal point, minus sign, and allowed symbols
+    const filteredValue = newInputValue.replace(/[^0-9.-]/g, '');
+    
+    // Prevent multiple decimal points
+    const parts = filteredValue.split('.');
+    const finalValue = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : filteredValue;
+    
+    // Prevent multiple minus signs and ensure minus is only at the beginning
+    const minusCount = (finalValue.match(/-/g) || []).length;
+    const cleanValue = minusCount > 1 ? finalValue.replace(/-/g, '').replace(/^/, '-') : finalValue;
+    const finalCleanValue = cleanValue.startsWith('-') ? cleanValue : cleanValue.replace(/-/g, '');
+    
+    setInputValue(finalCleanValue);
+    
+    const parsedValue = parseValue(finalCleanValue);
+    if (parsedValue !== null) {
+      onChange(parsedValue);
+    }
   };
 
-  const displayValue = format === 'percentage' ? (value * 100).toFixed(1) : value.toString();
+  const handleFocus = () => {
+    setIsFocused(true);
+    // Show raw number when focused for easier editing
+    if (format === 'percentage') {
+      setInputValue((value * 100).toString());
+    } else {
+      setInputValue(value.toString());
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    // Format the value when losing focus
+    const parsedValue = parseValue(inputValue);
+    if (parsedValue !== null) {
+      setInputValue(formatValue(parsedValue));
+    } else {
+      // If invalid input, revert to current value
+      setInputValue(formatValue(value));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Allow: backspace, delete, tab, escape, enter, home, end, left, right, up, down
+    if ([8, 9, 27, 13, 46, 35, 36, 37, 38, 39, 40].includes(e.keyCode)) {
+      return;
+    }
+    
+    // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z
+    if ((e.ctrlKey || e.metaKey) && [65, 67, 86, 88, 90].includes(e.keyCode)) {
+      return;
+    }
+    
+    // Allow: decimal point (but only one)
+    if (e.key === '.' && !inputValue.includes('.')) {
+      return;
+    }
+    
+    // Allow: minus sign (but only at the beginning)
+    if (e.key === '-' && inputValue.length === 0) {
+      return;
+    }
+    
+    // Allow: numbers
+    if (e.key >= '0' && e.key <= '9') {
+      return;
+    }
+    
+    // Block everything else
+    e.preventDefault();
+  };
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -76,8 +157,11 @@ export function NumberField({
         <Input
           id={label}
           type="text"
-          value={displayValue}
+          value={inputValue}
           onChange={handleInputChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           min={min}
           max={max}
           step={step}
