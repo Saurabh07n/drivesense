@@ -65,7 +65,12 @@ export function NumberField({
     if (cleaned === '') return null;
     
     const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? null : Math.max(min, Math.min(max, parsed));
+    if (isNaN(parsed)) return null;
+    
+    // For percentage format, convert from percentage to decimal
+    const value = format === 'percentage' ? parsed / 100 : parsed;
+    
+    return Math.max(min, Math.min(max, value));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
