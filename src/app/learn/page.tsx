@@ -6,7 +6,7 @@ import { BookOpen, Calculator, TrendingUp, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Learn - DriveSense',
+  title: 'Learn - TorqWiser',
   description: 'Learn about EMI calculations, SIP math, and financial planning strategies for car financing.',
   keywords: ['EMI formula', 'SIP math', 'financial planning', 'car loan education', 'investment strategies'],
 };

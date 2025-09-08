@@ -41,13 +41,13 @@ export function Footer() {
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
               <Car className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-bold">DriveSense</span>
+              <span className="text-xl font-bold">TorqWiser</span>
             </div>
             <p className="text-gray-400 mb-4">
               Plan your car smartly: balance EMIs and investments with math.
             </p>
             <div className="text-sm text-gray-400">
-              <p>© 2024 DriveSense. All rights reserved.</p>
+              <p>© 2024 TorqWiser. All rights reserved.</p>
             </div>
           </div>
 
@@ -75,7 +75,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-sm text-gray-400 mb-4 md:mb-0">
               <p>
-                DriveSense is a financial planning tool. All calculations are for educational purposes only.
+                TorqWiser is a financial planning tool. All calculations are for educational purposes only.
                 Please consult with a financial advisor before making investment decisions.
               </p>
             </div>

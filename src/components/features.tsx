@@ -58,7 +58,7 @@ export function Features() {
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             From basic EMI calculations to advanced wealth creation strategies, 
-            DriveSense provides all the tools you need for smart car financing.
+            TorqWiser provides all the tools you need for smart car financing.
           </p>
         </div>
 

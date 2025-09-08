@@ -5,9 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Car, Target, Shield, Users } from 'lucide-react';
 
 export const metadata = {
-  title: 'About - DriveSense',
-  description: 'Learn about DriveSense, our mission to help car buyers make smart financial decisions through EMI vs SIP analysis.',
-  keywords: ['about drivesense', 'car finance calculator', 'financial planning tool', 'EMI calculator'],
+  title: 'About - TorqWiser',
+  description: 'Learn about TorqWiser, our mission to help car buyers make smart financial decisions through EMI vs SIP analysis.',
+  keywords: ['about torqwiser', 'car finance calculator', 'financial planning tool', 'EMI calculator'],
 };
 
 export default function AboutPage() {
@@ -40,7 +40,7 @@ export default function AboutPage() {
               <Car className="h-12 w-12 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">About DriveSense</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">About TorqWiser</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 We&apos;re on a mission to help car buyers make smarter financial decisions
             by understanding the trade-offs between loan payments and investment opportunities.
@@ -54,7 +54,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed mb-4">
                 Most car buyers focus only on getting the lowest EMI, but they miss the bigger picture 
-                of wealth creation. DriveSense helps you understand how different financing strategies 
+                of wealth creation. TorqWiser helps you understand how different financing strategies 
                 affect your long-term financial health.
               </p>
               <p className="text-gray-600 leading-relaxed">
@@ -88,7 +88,7 @@ export default function AboutPage() {
           {/* How It Works */}
           <Card>
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">How DriveSense Works</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">How TorqWiser Works</h2>
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
@@ -121,7 +121,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Important Disclaimer</h2>
               <div className="space-y-3 text-gray-600">
                 <p>
-                  DriveSense is an educational tool designed to help you understand financial concepts 
+                  TorqWiser is an educational tool designed to help you understand financial concepts 
                   and compare different strategies. All calculations are for informational purposes only.
                 </p>
                 <p>

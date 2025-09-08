@@ -3,14 +3,14 @@ import { Metadata } from 'next';
 import EMICalculator from './client';
 
 export const metadata: Metadata = {
-  title: 'EMI Calculator – DriveSense',
+  title: 'EMI Calculator – TorqWiser',
   description: 'Calculate your car loan EMI with detailed amortization schedule. Plan your car financing with accurate EMI calculations.',
   keywords: ['EMI calculator', 'car loan EMI', 'loan calculator', 'amortization schedule', 'car finance'],
   alternates: {
-    canonical: 'https://drivesense.app/calculator/emi'
+    canonical: 'https://torqwiser.app/calculator/emi'
   },
   openGraph: {
-    title: 'EMI Calculator – DriveSense',
+    title: 'EMI Calculator – TorqWiser',
     description: 'Calculate your car loan EMI with detailed amortization schedule.',
     type: 'website',
   },

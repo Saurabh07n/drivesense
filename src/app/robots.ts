@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/private/',
     },
-    sitemap: 'https://drivesense.app/sitemap.xml',
+    sitemap: 'https://torqwiser.app/sitemap.xml',
   }
 }
 

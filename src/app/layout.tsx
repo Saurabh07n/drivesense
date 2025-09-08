@@ -7,36 +7,36 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'DriveSense - Car Finance Guider | EMI vs SIP Calculator',
-    template: '%s | DriveSense'
+    default: 'TorqWiser - Car Finance Guider | EMI vs SIP Calculator',
+    template: '%s | TorqWiser'
   },
   description: 'Plan your car smartly: balance EMIs and investments with math. Compare aggressive vs balanced strategies for car financing in India.',
   keywords: ['car loan calculator', 'EMI calculator', 'SIP calculator', 'car finance', 'loan vs investment', 'India'],
-  authors: [{ name: 'DriveSense Team' }],
-  creator: 'DriveSense',
-  publisher: 'DriveSense',
+  authors: [{ name: 'TorqWiser Team' }],
+  creator: 'TorqWiser',
+  publisher: 'TorqWiser',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://drivesense.app'),
+  metadataBase: new URL('https://torqwiser.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://drivesense.app',
-    title: 'DriveSense - Car Finance Guider',
+    url: 'https://torqwiser.app',
+    title: 'TorqWiser - Car Finance Guider',
     description: 'Plan your car smartly: balance EMIs and investments with math.',
-    siteName: 'DriveSense',
+    siteName: 'TorqWiser',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'DriveSense - Car Finance Guider',
+    title: 'TorqWiser - Car Finance Guider',
     description: 'Plan your car smartly: balance EMIs and investments with math.',
-    creator: '@drivesense',
+    creator: '@torqwiser',
   },
   robots: {
     index: true,
@@ -68,9 +68,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              "name": "DriveSense",
+              "name": "TorqWiser",
               "description": "Car finance guider that compares EMI strategies with SIP investments",
-              "url": "https://drivesense.app",
+              "url": "https://torqwiser.app",
               "applicationCategory": "FinanceApplication",
               "operatingSystem": "Web Browser",
               "offers": {
@@ -80,7 +80,7 @@ export default function RootLayout({
               },
               "author": {
                 "@type": "Organization",
-                "name": "DriveSense Team"
+                "name": "TorqWiser Team"
               },
               "featureList": [
                 "EMI Calculator",

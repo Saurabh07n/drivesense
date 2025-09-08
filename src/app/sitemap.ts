@@ -2,7 +2,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://drivesense.app'
+  const baseUrl = 'https://torqwiser.app'
   
   return [
     {

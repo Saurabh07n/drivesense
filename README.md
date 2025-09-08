@@ -1,8 +1,8 @@
-# DriveSense – Car Finance Guider
+# TorqWiser – Car Finance Guider
 
 **Tagline:** *"Plan your car smartly: balance EMIs and investments with math."*
 
-DriveSense is a comprehensive car finance calculator that helps Indian car buyers make smarter financial decisions by comparing EMI strategies with SIP investments. Instead of just focusing on the lowest EMI, DriveSense shows you the bigger picture of wealth creation through strategic financial planning.
+TorqWiser is a comprehensive car finance calculator that helps Indian car buyers make smarter financial decisions by comparing EMI strategies with SIP investments. Instead of just focusing on the lowest EMI, TorqWiser shows you the bigger picture of wealth creation through strategic financial planning.
 
 ## 🚀 Features
 
@@ -49,7 +49,7 @@ All calculations are performed client-side using pure mathematical functions:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd drivesense
+cd torqwiser
 
 # Install dependencies
 npm install
@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## ⚠️ Disclaimer
 
-DriveSense is an educational tool designed to help you understand financial concepts and compare different strategies. All calculations are for informational purposes only.
+TorqWiser is an educational tool designed to help you understand financial concepts and compare different strategies. All calculations are for informational purposes only.
 
 **Please consult with a qualified financial advisor** before making any investment or loan decisions. Past performance does not guarantee future results, and all investments carry risk.
 

@@ -5,8 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Shield, Eye, Lock, Database } from 'lucide-react';
 
 export const metadata = {
-  title: 'Privacy Policy - DriveSense',
-  description: 'DriveSense privacy policy. Learn how we protect your data and maintain your privacy while using our financial calculators.',
+  title: 'Privacy Policy - TorqWiser',
+  description: 'TorqWiser privacy policy. Learn how we protect your data and maintain your privacy while using our financial calculators.',
   keywords: ['privacy policy', 'data protection', 'privacy first', 'secure calculator'],
 };
 
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Your privacy is our priority. Learn how DriveSense protects your data 
+            Your privacy is our priority. Learn how TorqWiser protects your data 
             and maintains complete privacy in all our financial calculations.
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Data Collection</h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  <strong>We collect NO personal data.</strong> DriveSense is designed to work entirely 
+                  <strong>We collect NO personal data.</strong> TorqWiser is designed to work entirely 
                   without collecting any personal or financial information from users.
                 </p>
                 <p>
@@ -124,7 +124,7 @@ export default function PrivacyPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Third-Party Services</h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  DriveSense may use third-party services for hosting and analytics, but these 
+                  TorqWiser may use third-party services for hosting and analytics, but these 
                   services do not have access to your personal or financial data.
                 </p>
                 <p>
